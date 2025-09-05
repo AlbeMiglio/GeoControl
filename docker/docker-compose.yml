@@ -1,0 +1,50 @@
+x-constants:
+  backend_port: &backend_port 5001
+  frontend_port: &frontend_port 5173
+
+services:
+  frontend:
+    image: smpolito/geocontrolui:latest
+    container_name: geocontrol-frontend
+    ports:
+      - published: *frontend_port
+        target: *frontend_port
+    volumes: # Environment variables for the front-end must be defined in the frontend/env.vars.json and the file must be
+      - ./frontend/env-vars.json:/app/dist/config.json # explicitly mounted in the container to be effective
+  db:
+    image: mysql:8.0
+    container_name: geocontrol-db
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: geocontrolpass
+      MYSQL_DATABASE: geocontrol_db
+      MYSQL_USER: geocontrol_user
+      MYSQL_PASSWORD: secret
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/backend/Dockerfile
+    container_name: geocontrol-backend
+    depends_on:
+      - db
+    ports:
+      - published: *backend_port
+        target: *backend_port
+    volumes:
+      - ./backend/env-vars.json:/app/env-vars.json
+    environment:
+      DB_HOST: db
+      DB_TYPE: mysql
+      DB_PORT: 3306
+      DB_USERNAME: geocontrol_user
+      DB_PASSWORD: secret
+      DB_NAME: geocontrol_db
+      ADMIN_USER: root
+      ADMIN_PASS: rootpassword
+      PORT: *backend_port
+    command: ["npm", "start"]

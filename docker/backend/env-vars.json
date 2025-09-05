@@ -1,0 +1,10 @@
+{
+  "DB_HOST": "db",
+  "DB_TYPE": "mysql",
+  "DB_PORT": 3306,
+  "DB_USERNAME": "geocontrol_user",
+  "DB_PASSWORD": "secret",
+  "DB_NAME": "geocontrol_db",
+  "ADMIN_USER": "root",
+  "ADMIN_PASS": "rootpassword"
+}
